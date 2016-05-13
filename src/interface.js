@@ -3,11 +3,10 @@
 $(document).ready(function() {
 
   var thermostat = new Thermostat();
-  updateTemperature();
 
   function updateDisplays(){
-    updateTemperature()
-    updateDisplayColour()
+    updateTemperature();
+    updateDisplayColour();
   }
 
 
@@ -67,37 +66,32 @@ $(document).ready(function() {
     });
   };
 
-  function getServerData() {
-    var url = 'http://localhost:4567/temperature';
-    $.ajax({
-      type: "GET",
-      url: url,
-      dataType: "html",
-      success: function(data){
-        thermostat = new Thermostat(data);
-        displayWeather();
-        updateDisplays();
-
-      },
-      error: function(){
-        thermostat = new Thermostat();
-        displayWeather();
-        updateDisplays();
-      }
+  function getServerData(){
+    var json;
+    json = $.getJSON('http://localhost:4567/temperature', function(data){
+      json = data;
+      var city = json.city;
+      displayWeather(json.city);
+      $('#current-city').val(json.city);
+      thermostat = new Thermostat(json.temp);
+      updateDisplays();
     });
   }
 
-  function updateServer() {
-    var url = "http://localhost:4567/temperature?"
-    var tempparam = "temp="
+  function updateServer(temp, city) {
     var temp = thermostat.getCurrentTemperature();
-    var cityparam = "&city="
     var city = $('#current-city').val();
-    var url = url + tempparam + temp + cityparam + city;
-    $.post(url);
+    $.ajax({
+      type: "POST",
+      url: 'http://localhost:4567/temperature',
+      dataType: 'json',
+      data: JSON.stringify({"temp":temp,"city":city})
+    });
   }
 
+
   getServerData();
+  updateTemperature();
 
 
 

@@ -10,13 +10,16 @@ class Thermostat < Sinatra::Base
   end
 
   post '/temperature' do
-    session[:temperature] = params[:temp]
-    session[:city] = params[:city]
+    headers 'Access-Control-Allow-Origin' => '*'
+  	@json = request.body.read
+  	File.open('status.json', 'w') do |f|
+  		f.write(@json)
+  	end
   end
 
   get '/temperature' do
     headers 'Access-Control-Allow-Origin' => '*'
-    session[:temperature] || 20
+      @json = File.read('status.json')
   end
 
   run! if app_file == $0
